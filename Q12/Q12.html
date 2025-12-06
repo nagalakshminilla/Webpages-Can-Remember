@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM Element Creation and Removal</title>
+    <style>
+        /* Basic styling for better visibility */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #content-area {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 15px;
+            min-height: 50px; /* Ensure the div is visible even when empty */
+            background-color: #f4f4f4;
+        }
+        .paragraph-item {
+            padding: 5px;
+            margin-bottom: 5px;
+            background-color: #e0e0e0;
+            border-left: 5px solid #007bff;
+        }
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>L0 - Creating and Removing Elements</h1>
+
+    <button id="add-btn">Add Paragraph</button>
+    <button id="remove-btn">Remove Last Paragraph</button>
+
+    <hr>
+
+    <h2>Content Area</h2>
+    <div id="content-area">
+        </div>
+
+    <script>
+
+        // 1. Getting references to the necessary DOM elements
+        const addButton = document.getElementById('add-btn');
+        const removeButton = document.getElementById('remove-btn');
+        const contentArea = document.getElementById('content-area');
+
+        // 2. Adding an event listener to the Add Paragraph button
+        addButton.addEventListener('click', () => {
+            // COMMENT: Use createElement to create a new <p> element
+            const newParagraph = document.createElement('p');
+
+            // COMMENT: Set the text content for the new paragraph
+            newParagraph.textContent = "This is a new paragraph.";
+            newParagraph.classList.add('paragraph-item');
+
+            // as the last child of the 'content-area' div
+            contentArea.appendChild(newParagraph);
+        });
+
+        // 3. Adding an event listener to the "Remove Last Paragraph" button
+        removeButton.addEventListener('click', () => {
+            // Geting the last paragraph child of the content-area div
+            // As The 'lastElementChild' property is used to get the last
+            const lastParagraph = contentArea.lastElementChild;
+            // Checking if an element exists before trying to remove it
+            if (lastParagraph) {
+                // Using removeChild on the PARENT element (contentArea) 
+                // to remove the LAST CHILD element (lastParagraph)
+                contentArea.removeChild(lastParagraph);
+            } else {
+                console.log("No paragraphs to remove.");
+            }
+        });
+    </script>
+</body>
+</html>
