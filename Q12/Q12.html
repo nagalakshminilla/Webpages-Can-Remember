@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DOM Element Creation and Removal</title>
     <style>
-        /* Basic styling for better visibility */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -14,7 +13,7 @@
             border: 1px solid #ccc;
             padding: 10px;
             margin-top: 15px;
-            min-height: 50px; /* Ensure the div is visible even when empty */
+            min-height: 50px;
             background-color: #f4f4f4;
         }
         .paragraph-item {
@@ -58,8 +57,6 @@
             // COMMENT: Set the text content for the new paragraph
             newParagraph.textContent = "This is a new paragraph.";
             newParagraph.classList.add('paragraph-item');
-
-            // as the last child of the 'content-area' div
             contentArea.appendChild(newParagraph);
         });
 
