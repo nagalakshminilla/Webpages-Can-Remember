@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L0 - Save and Load User Notes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #save-btn { background-color: #28a745; color: white; border: none; }
+        #load-btn { background-color: #007bff; color: white; border: none; }
+        #clear-btn { background-color: #dc3545; color: white; border: none; }
+        #message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>User Notes Application</h1>
+    <p>Your notes are saved locally in your browser.</p>
+
+    <textarea id="note-input" placeholder="Start typing your notes here..."></textarea>
+
+    <button id="save-btn">Save Notes</button>
+    <button id="load-btn">Load Notes</button>
+    <button id="clear-btn">Clear Notes</button>
+
+    <div id="message"></div>
+
+    <script>
+
+        // Definin a key for localStorage to avoid magic strings
+        const LOCAL_STORAGE_KEY = 'userNotes'; 
+
+        // 1. Get references to the necessary DOM elements
+        const noteInput = document.getElementById('note-input');
+        const saveButton = document.getElementById('save-btn');
+        const loadButton = document.getElementById('load-btn');
+        const clearButton = document.getElementById('clear-btn');
+        const messageDisplay = document.getElementById('message');
+
+       
+        function displayMessage(text) {
+            messageDisplay.textContent = text;
+            // Clear the message after a few seconds
+            setTimeout(() => {
+                messageDisplay.textContent = '';
+            }, 3000);
+        }
+        // this function is used for core Notes logic
+        function loadNotes() {
+            // Using localStorage.getItem() to retrieve the stored string
+            const savedNotes = localStorage.getItem(LOCAL_STORAGE_KEY);
+            
+            if (savedNotes) {
+                // COMMENT: Display the retrieved notes in the textarea
+                noteInput.value = savedNotes;
+                displayMessage('Notes loaded successfully.');
+            } else {
+                // Clear the textarea if no notes are found
+                noteInput.value = ''; 
+                displayMessage('No saved notes found.');
+            }
+        }
+
+        /**
+         * Saves the current content of the text area to localStorage.
+         */
+        function saveNotes() {
+            // Get the current notes, trimming whitespace from both ends
+            const currentNotes = noteInput.value.trim();
+
+            // COMMENT: Validation check: Ensure the note is not empty before saving
+            if (currentNotes === "") {
+                displayMessage('Cannot save empty notes. Please enter some text.');
+                return; // Stop execution if notes are empty
+            }
+
+            // COMMENT: Use localStorage.setItem() to store the data as a string
+            localStorage.setItem(LOCAL_STORAGE_KEY, currentNotes);
+            displayMessage('Notes saved successfully!');
+        }
+        
+        /**
+         * Clears the notes from localStorage and the text area.
+         */
+        function clearNotes() {
+            // COMMENT: Use localStorage.removeItem() to delete the specific key
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            
+            // To Clear the text area display
+            noteInput.value = '';
+            displayMessage('Notes cleared successfully from your browser storage.');
+        }
+
+        // 2. Initial Page Load Check
+        // To Call loadNotes immediately when the page loads to ensure persistence
+        loadNotes();
+
+        // 3. Attach event listeners to the buttons
+        saveButton.addEventListener('click', saveNotes);
+        loadButton.addEventListener('click', loadNotes);
+        clearButton.addEventListener('click', clearNotes);
+
+    </script>
+</body>
+</html>
