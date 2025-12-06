@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L0 - Enhanced Todo List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        #app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"], button {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        #task-input {
+            width: 70%;
+        }
+        #add-btn {
+            width: 28%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #search-input {
+            width: 100%;
+        }
+        #todo-list {
+            list-style: none;
+            padding: 0;
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .task-text {
+            flex-grow: 1;
+            margin-right: 10px;
+            cursor: pointer; 
+        }
+        .completed .task-text {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>My Enhanced Todo List</h1>
+
+        <div>
+            <input type="text" id="task-input" placeholder="Enter a new task...">
+            <button id="add-btn">Add Task</button>
+        </div>
+        
+        <input type="text" id="search-input" placeholder="Search tasks...">
+
+        <hr>
+
+        <ul id="todo-list">
+            </ul>
+    </div>
+
+    <script>
+
+        const STORAGE_KEY = 'enhancedTodoList';
+        
+        // --- 1. DOM Elements References ---
+        const taskInput = document.getElementById('task-input');
+        const addButton = document.getElementById('add-btn');
+        const searchInput = document.getElementById('search-input');
+        const todoList = document.getElementById('todo-list');
+
+        // --- 2. Data Structure (Global Array) ---
+        let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+
+        // --- 3. Persistence Functions ---
+
+        function saveTasks() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        }
+
+        // --- 4. Render and Filter Function ---
+
+        function renderTasks(filteredTasks = tasks) {
+            todoList.innerHTML = '';
+
+            filteredTasks.forEach(task => {
+                // Create the main list item element
+                const listItem = document.createElement('li');
+                listItem.classList.add('task-item');
+                // Store the unique ID on the DOM element for easy access
+                listItem.dataset.id = task.id;
+
+                //  Apply visual indication for completion status
+                if (task.completed) {
+                    listItem.classList.add('completed');
+                }
+
+                // Create the task text span
+                const taskText = document.createElement('span');
+                taskText.classList.add('task-text');
+                taskText.textContent = task.text;
+                
+                // Create the delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-btn');
+                deleteButton.textContent = 'Remove';
+                deleteButton.onclick = () => removeTask(task.id);
+
+                // Add event listener to toggle completion status when text is clicked
+                taskText.onclick = () => toggleCompletion(task.id);
+
+                // Append elements to the list item
+                listItem.appendChild(taskText);
+                listItem.appendChild(deleteButton);
+                
+                // Append the list item to the main list
+                todoList.appendChild(listItem);
+            });
+        }
+
+
+        // --- 5. CRUD and Toggling Logic ---
+
+        /**
+         * Adds a new task to the 'tasks' array.
+         */
+        function addTask() {
+            const text = taskInput.value.trim();
+
+            if (text === '') {
+                alert('Task cannot be empty.');
+                return;
+            }
+
+            // Create a unique ID using a timestamp (simple solution)
+            const newTask = {
+                id: Date.now(), 
+                text: text,
+                completed: false
+            };
+
+            tasks.push(newTask);
+            saveTasks(); // Persist the updated array
+            renderTasks(); // Re-render the list
+            
+            // Clear the input field
+            taskInput.value = '';
+        }
+
+        function toggleCompletion(id) {
+            tasks = tasks.map(task => 
+                //Find the task by ID and flip the boolean 'completed' status
+                task.id === id ? { ...task, completed: !task.completed } : task
+            );
+
+            saveTasks(); // Persist the new status
+            // Re-render the list, respecting the current search filter if any
+            filterTasks(searchInput.value);
+        }
+
+        function removeTask(id) {
+            // Filter the array to create a new array without the matching task ID
+            tasks = tasks.filter(task => task.id !== id);
+
+            saveTasks(); // Persist the updated array
+            // Re-render the list, respecting the current search filter if any
+            filterTasks(searchInput.value);
+        }
+
+
+        // --- 6. Real-time Search/Filtering Logic ---
+        
+        function filterTasks(query) {
+            const lowerCaseQuery = query.toLowerCase();
+
+            // Filter the main tasks array based on text matching the query
+            const filtered = tasks.filter(task => 
+                task.text.toLowerCase().includes(lowerCaseQuery)
+            );
+
+            // Render only the matching tasks
+            renderTasks(filtered);
+        }
+
+        // --- 7. Event Listeners and Initial Setup ---
+
+        // Add task event listener
+        addButton.addEventListener('click', addTask);
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Search/Filter event listener
+        //  The 'input' event triggers every time the value changes (real-time filtering)
+        searchInput.addEventListener('input', (e) => {
+            filterTasks(e.target.value);
+        });
+
+        // Initial load of tasks when the page loads
+        renderTasks();
+
+    </script>
+</body>
+</html>
